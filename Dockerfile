@@ -9,7 +9,7 @@ WORKDIR /var/app
 COPY . .
 
 ENV NODE_ENV=production
-RUN apk add --update bash curl && rm -rf /var/cache/apk/*
+RUN apk add --update bash curl git && rm -rf /var/cache/apk/*
 RUN npm ci --only=prod --silent
 # EXPOSE 3000
 # HEALTHCHECK --interval=30s --timeout=5s CMD curl --fail http://0.0.0.0:3000 || exit 1

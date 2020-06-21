@@ -5,12 +5,14 @@ import ArticleBuilder from '@frontender-magazine/builder';
 dotenv.config();
 
 const { RABIITMQ_HOST, PORT = 3000 } = process.env;
+let channel;
+let connection;
 
 (async () => {
   try {  
     // connecting to the rebbitmq bus
-    const connection = await amqp.connect(`amqp://${RABIITMQ_HOST}`);
-    const channel = await connection.createChannel();
+    connection = await amqp.connect(`amqp://${RABIITMQ_HOST}`);
+    channel = await connection.createChannel();
     const queue = 'bus';
     channel.assertQueue(queue, {
       durable: false
@@ -92,6 +94,7 @@ const { RABIITMQ_HOST, PORT = 3000 } = process.env;
         noAck: true
     });
   } catch (error) {
+    console.log(error);
     // shutting down rabbitmq connection
     if (channel) await channel.close();
     if (connection) await connection.close();
