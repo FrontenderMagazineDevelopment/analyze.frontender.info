@@ -12,7 +12,7 @@
   "author": "Anton Nemtsev",
   "license": "ISC",
   "dependencies": {
-    "@frontender-magazine/builder": "^1.4.10",
+    "@frontender-magazine/builder": "^1.4.13",
     "amqplib": "^0.5.6"
   }
 }
