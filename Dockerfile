@@ -1,6 +1,6 @@
 # docker run -it node:13-alpine /bin/bash
 # ---- Base Node ----
-FROM node:13-alpine AS base
+FROM node:14-alpine AS base
 # Preparing
 RUN mkdir -p /var/app && chown -R node /var/app
 # Set working directory
