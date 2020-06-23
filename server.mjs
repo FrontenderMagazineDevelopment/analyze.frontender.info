@@ -5,18 +5,42 @@ import ArticleBuilder from '@frontender-magazine/builder';
 dotenv.config();
 
 const { RABIITMQ_HOST, PORT = 3000 } = process.env;
-let channel;
 let connection;
+let channel;
+const queue = 'bus';
+let retries = 3;
+const interval = 10000;
+
+const buildRabbitMQConnector = () => new Promise((resolve, reject) => connectToRabbitMQ(resolve, reject));
+
+const connectToRabbitMQ = async (resolve, reject) => {
+  try {
+    connection = await amqp.connect(`amqp://${RABIITMQ_HOST}`);
+    channel = await connection.createChannel();
+    await channel.assertQueue(queue, {
+      durable: false
+    });
+    console.log('RabbitMQ is connected.')
+    resolve();
+  } catch (error) {
+    console.log(error);
+    if (retries > 0) {
+      console.log(`Reconnect in ${interval/1000} seconds. ${retries} attempts left.`)
+      setTimeout(connectToRabbitMQ.bind(this, resolve, reject), interval);
+    } else {
+      reject();
+    }
+    retries--;
+  }
+};
 
 (async () => {
   try {  
     // connecting to the rebbitmq bus
-    connection = await amqp.connect(`amqp://${RABIITMQ_HOST}`);
-    channel = await connection.createChannel();
-    const queue = 'bus';
-    channel.assertQueue(queue, {
-      durable: false
-    });
+    console.log('trying to connect');
+    await buildRabbitMQConnector();
+    console.log("[*] Waiting for messages in %s. To exit press CTRL+C", queue);
+
     channel.consume(queue, async (msg) => {
       console.log('msg: ');
       console.log(JSON.parse(msg.content.toString()));
